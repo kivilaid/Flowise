@@ -49,15 +49,26 @@ echo $GITHUB_TOKEN | docker login ghcr.io -u kivilaid --password-stdin
 ./docker/build-and-push.sh ghcr kivilaid
 ```
 
-### 5. Alternative: Use Docker Hub
+### 5. Build locally and push manually
 
-1. Create a Docker Hub account at https://hub.docker.com
-2. Create a repository named `flowise-insly`
-3. Add secrets to your GitHub repository:
-   - Go to Settings > Secrets and variables > Actions
-   - Add `DOCKERHUB_USERNAME` with your Docker Hub username
-   - Add `DOCKERHUB_TOKEN` with your Docker Hub access token
-4. The Docker Hub workflow will run automatically on push
+If the GitHub Actions continue to fail, you can build and push manually:
+
+```bash
+# Clone and enter directory
+git clone https://github.com/kivilaid/Flowise.git
+cd Flowise
+
+# Create a GitHub Personal Access Token (PAT)
+# Go to: https://github.com/settings/tokens
+# Create a token with 'write:packages' permission
+
+# Login to ghcr.io
+export GITHUB_TOKEN=your_personal_access_token
+echo $GITHUB_TOKEN | docker login ghcr.io -u kivilaid --password-stdin
+
+# Build and push
+./docker/build-and-push.sh kivilaid
+```
 
 ### 6. Quick workaround for Coolify
 

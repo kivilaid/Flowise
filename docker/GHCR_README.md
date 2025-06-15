@@ -5,7 +5,6 @@ This repository automatically builds and publishes Docker images to GitHub Conta
 ## Available Images
 
 - **Main Application**: `ghcr.io/kivilaid/flowise:latest`
-- **Worker**: `ghcr.io/kivilaid/flowise-worker:latest`
 
 ## Pulling Images
 
