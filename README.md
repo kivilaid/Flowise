@@ -35,6 +35,20 @@ Download and Install [NodeJS](https://nodejs.org/en/download) >= 18.15.0
 
 ## 🐳 Docker
 
+### Pre-built Images from GitHub Container Registry
+
+Pre-built images are available from GitHub Container Registry:
+
+```bash
+# Pull and run the latest image
+docker run -d --name flowise -p 3000:3000 ghcr.io/kivilaid/flowise:latest
+
+# With persistence
+docker run -d --name flowise -p 3000:3000 -v ~/.flowise:/app/packages/server/.flowise ghcr.io/kivilaid/flowise:latest
+```
+
+See [docker/GHCR_README.md](./docker/GHCR_README.md) for more deployment options.
+
 ### Docker Compose
 
 1. Clone the Flowise project
@@ -44,7 +58,7 @@ Download and Install [NodeJS](https://nodejs.org/en/download) >= 18.15.0
 5. Open [http://localhost:3000](http://localhost:3000)
 6. You can bring the containers down by `docker compose stop`
 
-### Docker Image
+### Build Docker Image Locally
 
 1. Build the image locally:
     ```bash
