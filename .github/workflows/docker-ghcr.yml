@@ -21,7 +21,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository_owner }}/flowise
+  IMAGE_NAME: kivilaid/flowise
 
 jobs:
   build-and-push:
