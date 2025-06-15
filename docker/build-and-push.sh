@@ -9,8 +9,8 @@ TAG="latest"
 
 echo "Building Flowise Docker image..."
 
-# Build the image using root Dockerfile
-docker build -t ${IMAGE_NAME}:${TAG} -f Dockerfile .
+# Build the image using docker/Dockerfile (multi-stage, more efficient)
+docker build -t ${IMAGE_NAME}:${TAG} -f docker/Dockerfile .
 
 if [ $? -ne 0 ]; then
     echo "Build failed!"

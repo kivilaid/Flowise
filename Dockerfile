@@ -16,13 +16,14 @@ RUN apk add --no-cache chromium
 # Fixes: https://github.com/FlowiseAI/Flowise/issues/4126
 RUN apk add --no-cache curl
 
-#install PNPM globaly
-RUN npm install -g pnpm
+#install PNPM globaly with specific version
+RUN npm install -g pnpm@10.11.1
 
 ENV PUPPETEER_SKIP_DOWNLOAD=true
 ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
 
 ENV NODE_OPTIONS=--max-old-space-size=8192
+ENV COREPACK_ENABLE_STRICT=0
 
 WORKDIR /usr/src
 
