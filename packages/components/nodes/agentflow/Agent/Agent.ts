@@ -15,7 +15,7 @@ import { AnalyticHandler } from '../../../src/handler'
 import { DEFAULT_SUMMARIZER_TEMPLATE } from '../prompt'
 import { ILLMMessage } from '../Interface.Agentflow'
 import { Tool } from '@langchain/core/tools'
-import { ARTIFACTS_PREFIX, SOURCE_DOCUMENTS_PREFIX } from '../../../src/agents'
+import { ARTIFACTS_PREFIX, SOURCE_DOCUMENTS_PREFIX, TOOL_ARGS_PREFIX } from '../../../src/agents'
 import { flatten } from 'lodash'
 import zodToJsonSchema from 'zod-to-json-schema'
 import { getErrorMessage } from '../../../src/error'
@@ -427,7 +427,8 @@ class Agent_Agentflow implements INode {
                 return returnData
             }
 
-            const stores = await appDataSource.getRepository(databaseEntities['DocumentStore']).find()
+            const searchOptions = options.searchOptions || {}
+            const stores = await appDataSource.getRepository(databaseEntities['DocumentStore']).findBy(searchOptions)
             for (const store of stores) {
                 if (store.status === 'UPSERTED') {
                     const obj = {
@@ -755,7 +756,7 @@ class Agent_Agentflow implements INode {
                 /*
                  * If this is the first node:
                  * - Add images to messages if exist
-                 * - Add user message
+                 * - Add user message if it does not exist in the agentMessages array
                  */
                 if (options.uploads) {
                     const imageContents = await getUniqueImageMessages(options, messages, modelConfig)
@@ -766,7 +767,7 @@ class Agent_Agentflow implements INode {
                     }
                 }
 
-                if (input && typeof input === 'string') {
+                if (input && typeof input === 'string' && !agentMessages.some((msg) => msg.role === 'user')) {
                     messages.push({
                         role: 'user',
                         content: input
@@ -976,7 +977,19 @@ class Agent_Agentflow implements INode {
                     inputMessages.push(...runtimeImageMessagesWithFileRef)
                 }
                 if (input && typeof input === 'string') {
-                    inputMessages.push({ role: 'user', content: input })
+                    if (!enableMemory) {
+                        if (!agentMessages.some((msg) => msg.role === 'user')) {
+                            inputMessages.push({ role: 'user', content: input })
+                        } else {
+                            agentMessages.map((msg) => {
+                                if (msg.role === 'user') {
+                                    inputMessages.push({ role: 'user', content: msg.content })
+                                }
+                            })
+                        }
+                    } else {
+                        inputMessages.push({ role: 'user', content: input })
+                    }
                 }
             }
 
@@ -1388,9 +1401,18 @@ class Agent_Agentflow implements INode {
                     return { response, usedTools, sourceDocuments, artifacts, totalTokens, isWaitingForHumanInput: true }
                 }
 
+                let toolIds: ICommonObject | undefined
+                if (options.analyticHandlers) {
+                    toolIds = await options.analyticHandlers.onToolStart(toolCall.name, toolCall.args, options.parentTraceIds)
+                }
+
                 try {
                     //@ts-ignore
                     let toolOutput = await selectedTool.call(toolCall.args, { signal: abortController?.signal }, undefined, flowConfig)
+
+                    if (options.analyticHandlers && toolIds) {
+                        await options.analyticHandlers.onToolEnd(toolIds, toolOutput)
+                    }
 
                     // Extract source documents if present
                     if (typeof toolOutput === 'string' && toolOutput.includes(SOURCE_DOCUMENTS_PREFIX)) {
@@ -1416,6 +1438,17 @@ class Agent_Agentflow implements INode {
                         }
                     }
 
+                    let toolInput
+                    if (typeof toolOutput === 'string' && toolOutput.includes(TOOL_ARGS_PREFIX)) {
+                        const [output, args] = toolOutput.split(TOOL_ARGS_PREFIX)
+                        toolOutput = output
+                        try {
+                            toolInput = JSON.parse(args)
+                        } catch (e) {
+                            console.error('Error parsing tool input from tool:', e)
+                        }
+                    }
+
                     // Add tool message to conversation
                     messages.push({
                         role: 'tool',
@@ -1431,10 +1464,14 @@ class Agent_Agentflow implements INode {
                     // Track used tools
                     usedTools.push({
                         tool: toolCall.name,
-                        toolInput: toolCall.args,
+                        toolInput: toolInput ?? toolCall.args,
                         toolOutput
                     })
                 } catch (e) {
+                    if (options.analyticHandlers && toolIds) {
+                        await options.analyticHandlers.onToolEnd(toolIds, e)
+                    }
+
                     console.error('Error invoking tool:', e)
                     usedTools.push({
                         tool: selectedTool.name,
@@ -1626,9 +1663,18 @@ class Agent_Agentflow implements INode {
                     toolsInstance = toolsInstance.filter((tool) => tool.name !== toolCall.name)
                 }
                 if (humanInput.type === 'proceed') {
+                    let toolIds: ICommonObject | undefined
+                    if (options.analyticHandlers) {
+                        toolIds = await options.analyticHandlers.onToolStart(toolCall.name, toolCall.args, options.parentTraceIds)
+                    }
+
                     try {
                         //@ts-ignore
                         let toolOutput = await selectedTool.call(toolCall.args, { signal: abortController?.signal }, undefined, flowConfig)
+
+                        if (options.analyticHandlers && toolIds) {
+                            await options.analyticHandlers.onToolEnd(toolIds, toolOutput)
+                        }
 
                         // Extract source documents if present
                         if (typeof toolOutput === 'string' && toolOutput.includes(SOURCE_DOCUMENTS_PREFIX)) {
@@ -1654,6 +1700,17 @@ class Agent_Agentflow implements INode {
                             }
                         }
 
+                        let toolInput
+                        if (typeof toolOutput === 'string' && toolOutput.includes(TOOL_ARGS_PREFIX)) {
+                            const [output, args] = toolOutput.split(TOOL_ARGS_PREFIX)
+                            toolOutput = output
+                            try {
+                                toolInput = JSON.parse(args)
+                            } catch (e) {
+                                console.error('Error parsing tool input from tool:', e)
+                            }
+                        }
+
                         // Add tool message to conversation
                         messages.push({
                             role: 'tool',
@@ -1669,10 +1726,14 @@ class Agent_Agentflow implements INode {
                         // Track used tools
                         usedTools.push({
                             tool: toolCall.name,
-                            toolInput: toolCall.args,
+                            toolInput: toolInput ?? toolCall.args,
                             toolOutput
                         })
                     } catch (e) {
+                        if (options.analyticHandlers && toolIds) {
+                            await options.analyticHandlers.onToolEnd(toolIds, e)
+                        }
+
                         console.error('Error invoking tool:', e)
                         usedTools.push({
                             tool: selectedTool.name,
