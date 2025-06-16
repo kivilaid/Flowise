@@ -7,13 +7,14 @@ RUN apk add --no-cache build-base cairo-dev pango-dev
 # Install Chromium and curl for container-level health checks
 RUN apk add --no-cache chromium curl
 
-#install PNPM globaly
-RUN npm install -g pnpm
+#install PNPM globaly with specific version
+RUN npm install -g pnpm@10.11.1
 
 ENV PUPPETEER_SKIP_DOWNLOAD=true
 ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
 
 ENV NODE_OPTIONS=--max-old-space-size=8192
+ENV COREPACK_ENABLE_STRICT=0
 
 WORKDIR /usr/src
 

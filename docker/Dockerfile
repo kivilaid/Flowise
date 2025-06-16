@@ -13,8 +13,12 @@ COPY packages/server/package.json ./packages/server/
 COPY packages/components/package.json ./packages/components/
 COPY packages/api-documentation/package.json ./packages/api-documentation/
 
-# Install dependencies
-RUN npm install -g pnpm
+# Set build-time environment variables
+ENV NODE_OPTIONS=--max-old-space-size=8192
+ENV COREPACK_ENABLE_STRICT=0
+
+# Install dependencies with specific pnpm version
+RUN npm install -g pnpm@10.11.1
 RUN pnpm install --frozen-lockfile
 
 # Copy source code
