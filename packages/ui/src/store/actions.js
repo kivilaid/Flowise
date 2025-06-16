@@ -25,6 +25,9 @@ export const REMOVE_SNACKBAR = 'REMOVE_SNACKBAR'
 export const SHOW_CONFIRM = 'SHOW_CONFIRM'
 export const HIDE_CONFIRM = 'HIDE_CONFIRM'
 
+// action - app config reducer
+export const APP_CONFIG = '@appConfig/APP_CONFIG'
+
 export const enqueueSnackbar = (notification) => {
     const key = notification.options && notification.options.key
 

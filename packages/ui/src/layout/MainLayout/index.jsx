@@ -10,7 +10,8 @@ import { AppBar, Box, CssBaseline, Toolbar, useMediaQuery } from '@mui/material'
 import Header from './Header'
 import Sidebar from './Sidebar'
 import { drawerWidth, headerHeight } from '@/store/constant'
-import { SET_MENU } from '@/store/actions'
+import { SET_MENU, APP_CONFIG } from '@/store/actions'
+import appConfigApi from '@/api/appConfig'
 
 // styles
 const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })(({ theme, open }) => ({
@@ -71,6 +72,19 @@ const MainLayout = () => {
         setTimeout(() => dispatch({ type: SET_MENU, opened: !matchDownMd }), 0)
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [matchDownMd])
+
+    // Fetch app config on component mount
+    useEffect(() => {
+        const fetchAppConfig = async () => {
+            try {
+                const response = await appConfigApi.getAppConfig()
+                dispatch({ type: APP_CONFIG, config: response.data })
+            } catch (error) {
+                console.error('Failed to fetch app config:', error)
+            }
+        }
+        fetchAppConfig()
+    }, [dispatch])
 
     return (
         <Box sx={{ display: 'flex' }}>

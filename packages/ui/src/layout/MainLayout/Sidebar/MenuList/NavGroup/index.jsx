@@ -1,4 +1,5 @@
 import PropTypes from 'prop-types'
+import { useSelector } from 'react-redux'
 
 // material-ui
 import { useTheme } from '@mui/material/styles'
@@ -15,6 +16,7 @@ import { Available } from '@/ui-component/rbac/available'
 const NavGroup = ({ item }) => {
     const theme = useTheme()
     const { hasPermission, hasDisplay } = useAuth()
+    const hiddenMenuItems = useSelector((state) => state.appConfig.hiddenMenuItems)
 
     const listItems = (menu, level = 1) => {
         // Filter based on display and permission
@@ -36,6 +38,11 @@ const NavGroup = ({ item }) => {
     }
 
     const shouldDisplayMenu = (menu) => {
+        // Check if menu is hidden by environment variable
+        if (hiddenMenuItems && hiddenMenuItems.includes(menu.id)) {
+            return false
+        }
+
         // Handle permission check
         if (menu.permission && !hasPermission(menu.permission)) {
             return false // Do not render if permission is lacking

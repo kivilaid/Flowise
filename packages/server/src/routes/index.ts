@@ -1,5 +1,6 @@
 import express from 'express'
 import apikeyRouter from './apikey'
+import appConfigRouter from './app-config'
 import assistantsRouter from './assistants'
 import attachmentsRouter from './attachments'
 import chatMessageRouter from './chat-messages'
@@ -71,6 +72,7 @@ import { IdentityManager } from '../IdentityManager'
 const router = express.Router()
 
 router.use('/ping', pingRouter)
+router.use('/app-config', appConfigRouter)
 router.use('/apikey', apikeyRouter)
 router.use('/assistants', assistantsRouter)
 router.use('/attachments', attachmentsRouter)
