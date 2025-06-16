@@ -93,7 +93,7 @@ const APICodeDialog = ({ show, dialogProps, onCancel }) => {
     const apiConfig = chatflow?.apiConfig ? JSON.parse(chatflow.apiConfig) : {}
     const overrideConfigStatus = apiConfig?.overrideConfig?.status !== undefined ? apiConfig.overrideConfig.status : false
 
-    const codes = ['Embed', 'Python', 'JavaScript', 'cURL', 'Share Chatbot']
+    const codes = ['Embed', /*'Python',*/ 'Ledger', /*'cURL',*/ 'Standalone']
     const [value, setValue] = useState(0)
     const [apiKeys, setAPIKeys] = useState([])
     const [chatflowApiKeyId, setChatflowApiKeyId] = useState('')
@@ -315,7 +315,7 @@ output = query({
     "question": "Hey, how are you?",
 })
 `
-        } else if (codeLang === 'JavaScript') {
+        } else if (codeLang === 'JavaScript' || codeLang === 'Ledger') {
             return `async function query(data) {
     const response = await fetch(
         "${baseURL}/api/v1/prediction/${dialogProps.chatflowid}",
@@ -359,7 +359,7 @@ output = query({
     "question": "Hey, how are you?",
 })
 `
-        } else if (codeLang === 'JavaScript') {
+        } else if (codeLang === 'JavaScript' || codeLang === 'Ledger') {
             return `async function query(data) {
     const response = await fetch(
         "${baseURL}/api/v1/prediction/${dialogProps.chatflowid}",
@@ -393,7 +393,7 @@ query({"question": "Hey, how are you?"}).then((response) => {
     const getLang = (codeLang) => {
         if (codeLang === 'Python') {
             return 'python'
-        } else if (codeLang === 'JavaScript') {
+        } else if (codeLang === 'JavaScript' || codeLang === 'Ledger') {
             return 'javascript'
         } else if (codeLang === 'cURL') {
             return 'bash'
@@ -404,13 +404,13 @@ query({"question": "Hey, how are you?"}).then((response) => {
     const getSVG = (codeLang) => {
         if (codeLang === 'Python') {
             return pythonSVG
-        } else if (codeLang === 'JavaScript') {
+        } else if (codeLang === 'JavaScript' || codeLang === 'Ledger') {
             return javascriptSVG
         } else if (codeLang === 'Embed') {
             return EmbedSVG
         } else if (codeLang === 'cURL') {
             return cURLSVG
-        } else if (codeLang === 'Share Chatbot') {
+        } else if (codeLang === 'Share Chatbot' || codeLang === 'Standalone') {
             return ShareChatbotSVG
         } else if (codeLang === 'Configuration') {
             return settingsSVG
@@ -441,7 +441,7 @@ def query(form_data):
 
 output = query(form_data)
 `
-        } else if (codeLang === 'JavaScript') {
+        } else if (codeLang === 'JavaScript' || codeLang === 'Ledger') {
             return `// use FormData to upload files
 let formData = new FormData();
 ${getConfigExamplesForJS(configData, 'formData')}
@@ -493,7 +493,7 @@ def query(form_data):
 
 output = query(form_data)
 `
-        } else if (codeLang === 'JavaScript') {
+        } else if (codeLang === 'JavaScript' || codeLang === 'Ledger') {
             return `// use FormData to upload files
 let formData = new FormData();
 ${getConfigExamplesForJS(configData, 'formData')}
@@ -541,7 +541,7 @@ output = query({
     }
 })
 `
-        } else if (codeLang === 'JavaScript') {
+        } else if (codeLang === 'JavaScript' || codeLang === 'Ledger') {
             return `async function query(data) {
     const response = await fetch(
         "${baseURL}/api/v1/prediction/${dialogProps.chatflowid}",
@@ -593,7 +593,7 @@ output = query({
     }
 })
 `
-        } else if (codeLang === 'JavaScript') {
+        } else if (codeLang === 'JavaScript' || codeLang === 'Ledger') {
             return `async function query(data) {
     const response = await fetch(
         "${baseURL}/api/v1/prediction/${dialogProps.chatflowid}",
@@ -637,7 +637,7 @@ body_data = {
         "openAIEmbeddings_0": "sk-my-openai-2nd-key"
     }
 }`
-        } else if (codeLang === 'JavaScript') {
+        } else if (codeLang === 'JavaScript' || codeLang === 'Ledger') {
             return `// Specify multiple values for a config parameter by specifying the node id
 formData.append("openAIApiKey[chatOpenAI_0]", "sk-my-openai-1st-key")
 formData.append("openAIApiKey[openAIEmbeddings_0]", "sk-my-openai-2nd-key")`
@@ -722,7 +722,7 @@ formData.append("openAIApiKey[openAIEmbeddings_0]", "sk-my-openai-2nd-key")`
                 <div style={{ marginTop: 10 }}></div>
                 {codes.map((codeLang, index) => (
                     <TabPanel key={index} value={value} index={index}>
-                        {(codeLang === 'Embed' || codeLang === 'Share Chatbot') && chatflowApiKeyId && (
+                        {(codeLang === 'Embed' || codeLang === 'Standalone') && chatflowApiKeyId && (
                             <>
                                 <p>You cannot use API key while embedding/sharing chatbot.</p>
                                 <p>
@@ -731,7 +731,7 @@ formData.append("openAIApiKey[openAIEmbeddings_0]", "sk-my-openai-2nd-key")`
                             </>
                         )}
                         {codeLang === 'Embed' && !chatflowApiKeyId && <EmbedChat chatflowid={dialogProps.chatflowid} />}
-                        {codeLang !== 'Embed' && codeLang !== 'Share Chatbot' && codeLang !== 'Configuration' && (
+                        {codeLang !== 'Embed' && codeLang !== 'Standalone' && codeLang !== 'Configuration' && (
                             <>
                                 <CopyBlock
                                     theme={atomOneDark}
@@ -919,7 +919,7 @@ formData.append("openAIApiKey[openAIEmbeddings_0]", "sk-my-openai-2nd-key")`
                                 )}
                             </>
                         )}
-                        {codeLang === 'Share Chatbot' && !chatflowApiKeyId && (
+                        {codeLang === 'Standalone' && !chatflowApiKeyId && (
                             <ShareChatbot isSessionMemory={dialogProps.isSessionMemory} isAgentCanvas={dialogProps.isAgentCanvas} />
                         )}
                     </TabPanel>

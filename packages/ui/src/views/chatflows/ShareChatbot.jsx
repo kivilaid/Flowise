@@ -27,21 +27,21 @@ import { baseURL } from '@/store/constant'
 const defaultConfig = {
     backgroundColor: '#ffffff',
     fontSize: 16,
-    poweredByTextColor: '#303235',
-    titleBackgroundColor: '#3B81F6',
+    poweredByTextColor: '#333333',
+    titleBackgroundColor: '#FF6B35',
     titleTextColor: '#ffffff',
     botMessage: {
-        backgroundColor: '#f7f8ff',
-        textColor: '#303235'
+        backgroundColor: '#F5F5F5',
+        textColor: '#333333'
     },
     userMessage: {
-        backgroundColor: '#3B81F6',
+        backgroundColor: '#FF6B35',
         textColor: '#ffffff'
     },
     textInput: {
         backgroundColor: '#ffffff',
-        textColor: '#303235',
-        sendButtonColor: '#3B81F6'
+        textColor: '#333333',
+        sendButtonColor: '#FF6B35'
     }
 }
 
@@ -532,7 +532,7 @@ const ShareChatbot = ({ isSessionMemory, isAgentCanvas }) => {
                 </Stack>
                 {colorField(textInputBackgroundColor, 'textInputBackgroundColor', 'Background Color')}
                 {colorField(textInputTextColor, 'textInputTextColor', 'Text Color')}
-                {textField(textInputPlaceholder, 'textInputPlaceholder', 'TextInput Placeholder', 'string', `Type question..`)}
+                {textField(textInputPlaceholder, 'textInputPlaceholder', 'TextInput Placeholder', 'string', `Ask about your insurance policy...`)}
                 {colorField(textInputSendButtonColor, 'textInputSendButtonColor', 'TextIntput Send Button Color')}
             </Card>
 
