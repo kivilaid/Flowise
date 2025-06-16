@@ -1,10 +1,10 @@
 # Menu Visibility Configuration
 
-This document explains how to hide menu items in Flowise using environment variables.
+This document explains how to hide menu items in Insly using environment variables.
 
 ## Overview
 
-Flowise allows administrators to hide specific menu items from the UI by setting environment variables. This is useful for:
+Insly allows administrators to hide specific menu items from the UI by setting environment variables. This is useful for:
 - Customizing the UI for different deployments
 - Hiding features that are not needed
 - Simplifying the interface for specific user groups
@@ -74,14 +74,14 @@ HIDE_MENU_VARIABLES=true
 
 ### Using Docker
 
-When running Flowise with Docker, pass the environment variables:
+When running Insly with Docker, pass the environment variables:
 
 ```bash
 docker run -d \
   -e HIDE_MENU_APIKEY=true \
   -e HIDE_MENU_VARIABLES=true \
   -p 3000:3000 \
-  flowise
+  Insly
 ```
 
 ### Using Docker Compose
@@ -90,8 +90,8 @@ Add to your `docker-compose.yml`:
 
 ```yaml
 services:
-  flowise:
-    image: flowise
+  Insly:
+    image: Insly
     environment:
       - HIDE_MENU_APIKEY=true
       - HIDE_MENU_VARIABLES=true
