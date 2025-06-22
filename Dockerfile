@@ -30,7 +30,7 @@ WORKDIR /usr/src
 # Copy app source
 COPY . .
 
-RUN pnpm install
+RUN pnpm install --shamefully-hoist
 
 RUN pnpm build
 

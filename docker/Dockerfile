@@ -19,7 +19,8 @@ ENV COREPACK_ENABLE_STRICT=0
 
 # Install dependencies with specific pnpm version
 RUN npm install -g pnpm@10.11.1
-RUN pnpm install --frozen-lockfile
+# Use shamefully-hoist to ensure all dependencies are accessible
+RUN pnpm install --frozen-lockfile --shamefully-hoist
 
 # Copy source code
 COPY . .
