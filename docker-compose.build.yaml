@@ -1,5 +1,8 @@
 version: '3.8'
 
+# This file is for local development - it builds from source
+# For production/Coolify, use docker-compose.yaml which uses pre-built images
+
 services:
   postgres:
     image: postgres:16-alpine
@@ -21,7 +24,11 @@ services:
       - flowise_network
 
   flowise:
-    image: ghcr.io/kivilaid/flowise:feature-coolify-docker-compose
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile
+      args:
+        - NODE_ENV=production
     restart: unless-stopped
     depends_on:
       postgres:
