@@ -1,0 +1,114 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DATABASE_NAME:-flowise}
+      POSTGRES_USER: ${DATABASE_USER:-flowise}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD:-flowise_pass_change_me}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DATABASE_USER:-flowise} -d ${DATABASE_NAME:-flowise}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - flowise_network
+
+  flowise:
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile
+      args:
+        - NODE_ENV=production
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      # Server Configuration
+      - NODE_ENV=production
+      - PORT=${PORT:-3000}
+      
+      # PostgreSQL Database Configuration
+      - DATABASE_TYPE=postgres
+      - DATABASE_HOST=postgres
+      - DATABASE_PORT=5432
+      - DATABASE_NAME=${DATABASE_NAME:-flowise}
+      - DATABASE_USER=${DATABASE_USER:-flowise}
+      - DATABASE_PASSWORD=${DATABASE_PASSWORD:-flowise_pass_change_me}
+      - DATABASE_SSL=${DATABASE_SSL:-false}
+      
+      # Paths Configuration
+      - APIKEY_PATH=${APIKEY_PATH:-/opt/flowise/.flowise}
+      - SECRETKEY_PATH=${SECRETKEY_PATH:-/opt/flowise/.flowise}
+      - LOG_PATH=${LOG_PATH:-/opt/flowise/.flowise/logs}
+      
+      # Authentication
+      - FLOWISE_USERNAME=${FLOWISE_USERNAME}
+      - FLOWISE_PASSWORD=${FLOWISE_PASSWORD}
+      
+      # Logging
+      - DEBUG=${DEBUG:-false}
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      
+      # Security & CORS
+      - CORS_ORIGINS=${CORS_ORIGINS:-*}
+      - IFRAME_ORIGINS=${IFRAME_ORIGINS:-*}
+      
+      # Features
+      - FLOWISE_FILE_SIZE_LIMIT=${FLOWISE_FILE_SIZE_LIMIT:-50mb}
+      - DISABLE_FLOWISE_TELEMETRY=${DISABLE_FLOWISE_TELEMETRY:-true}
+      - SHOW_COMMUNITY_NODES=${SHOW_COMMUNITY_NODES:-true}
+      
+      # Storage Configuration
+      - STORAGE_TYPE=${STORAGE_TYPE:-local}
+      - BLOB_STORAGE_PATH=${BLOB_STORAGE_PATH:-/opt/flowise/.flowise/storage}
+      - S3_STORAGE_BUCKET_NAME=${S3_STORAGE_BUCKET_NAME}
+      - S3_STORAGE_ACCESS_KEY_ID=${S3_STORAGE_ACCESS_KEY_ID}
+      - S3_STORAGE_SECRET_ACCESS_KEY=${S3_STORAGE_SECRET_ACCESS_KEY}
+      - S3_STORAGE_REGION=${S3_STORAGE_REGION}
+      
+      # Tool Dependencies
+      - TOOL_FUNCTION_BUILTIN_DEP=${TOOL_FUNCTION_BUILTIN_DEP}
+      - TOOL_FUNCTION_EXTERNAL_DEP=${TOOL_FUNCTION_EXTERNAL_DEP}
+      
+      # Queue Configuration (optional)
+      - MODE=${MODE}
+      - WORKER_CONCURRENCY=${WORKER_CONCURRENCY}
+      - QUEUE_NAME=${QUEUE_NAME}
+      - REDIS_URL=${REDIS_URL}
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
+      - REDIS_USERNAME=${REDIS_USERNAME}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      
+      # Proxy Configuration
+      - NUMBER_OF_PROXIES=${NUMBER_OF_PROXIES}
+    ports:
+      - "${PORT:-3000}:${PORT:-3000}"
+    volumes:
+      - flowise_data:/opt/flowise/.flowise
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:${PORT:-3000}/api/v1/ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    networks:
+      - flowise_network
+
+networks:
+  flowise_network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+    driver: local
+  flowise_data:
+    driver: local
