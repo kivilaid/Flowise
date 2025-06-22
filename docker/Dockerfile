@@ -36,13 +36,26 @@ WORKDIR /app
 # Install runtime dependencies
 RUN apk add --no-cache chromium git python3 py3-pip make g++ build-base cairo-dev pango-dev curl
 
+# Install pnpm for production dependency installation
+RUN npm install -g pnpm@10.11.1
+
 # Set the environment variable for Puppeteer
 ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
 ENV PUPPETEER_SKIP_DOWNLOAD=true
 
+# Copy workspace configuration files
+COPY --from=builder /app/package.json ./
+COPY --from=builder /app/pnpm-lock.yaml ./
+COPY --from=builder /app/pnpm-workspace.yaml ./
+
+# Copy package.json files for all workspaces
+COPY --from=builder /app/packages/server/package.json ./packages/server/
+COPY --from=builder /app/packages/ui/package.json ./packages/ui/
+COPY --from=builder /app/packages/components/package.json ./packages/components/
+COPY --from=builder /app/packages/api-documentation/package.json ./packages/api-documentation/
+
 # Copy built files from builder stage
 COPY --from=builder /app/packages/server/dist ./packages/server/dist
-COPY --from=builder /app/packages/server/package.json ./packages/server/
 COPY --from=builder /app/packages/ui/build ./packages/ui/build
 COPY --from=builder /app/packages/components/dist ./packages/components/dist
 COPY --from=builder /app/packages/api-documentation/dist ./packages/api-documentation/dist
@@ -53,9 +66,8 @@ COPY --from=builder /app/packages/server/bin ./packages/server/bin
 # Set permissions for the run script
 RUN chmod +x ./packages/server/bin/run
 
-# Install production dependencies for server
-WORKDIR /app/packages/server
-RUN npm install --production
+# Install production dependencies using pnpm
+RUN pnpm install --prod --frozen-lockfile
 
 WORKDIR /app
 
