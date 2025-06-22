@@ -49,12 +49,11 @@ services:
       - SECRETKEY_PATH=${SECRETKEY_PATH:-/opt/flowise/.flowise}
       - LOG_PATH=${LOG_PATH:-/opt/flowise/.flowise/logs}
       
-      # Authentication
-      - FLOWISE_USERNAME=${FLOWISE_USERNAME}
-      - FLOWISE_PASSWORD=${FLOWISE_PASSWORD}
+      # Authentication (default: flowise/flowise)
+      - FLOWISE_USERNAME=${FLOWISE_USERNAME:-flowise}
+      - FLOWISE_PASSWORD=${FLOWISE_PASSWORD:-flowise}
       
       # Logging
-      - DEBUG=${DEBUG:-false}
       - LOG_LEVEL=${LOG_LEVEL:-info}
       
       # Security & CORS
@@ -64,32 +63,10 @@ services:
       # Features
       - FLOWISE_FILE_SIZE_LIMIT=${FLOWISE_FILE_SIZE_LIMIT:-50mb}
       - DISABLE_FLOWISE_TELEMETRY=${DISABLE_FLOWISE_TELEMETRY:-true}
-      - SHOW_COMMUNITY_NODES=${SHOW_COMMUNITY_NODES:-true}
       
-      # Storage Configuration
+      # Storage Configuration (local by default)
       - STORAGE_TYPE=${STORAGE_TYPE:-local}
       - BLOB_STORAGE_PATH=${BLOB_STORAGE_PATH:-/opt/flowise/.flowise/storage}
-      - S3_STORAGE_BUCKET_NAME=${S3_STORAGE_BUCKET_NAME}
-      - S3_STORAGE_ACCESS_KEY_ID=${S3_STORAGE_ACCESS_KEY_ID}
-      - S3_STORAGE_SECRET_ACCESS_KEY=${S3_STORAGE_SECRET_ACCESS_KEY}
-      - S3_STORAGE_REGION=${S3_STORAGE_REGION}
-      
-      # Tool Dependencies
-      - TOOL_FUNCTION_BUILTIN_DEP=${TOOL_FUNCTION_BUILTIN_DEP}
-      - TOOL_FUNCTION_EXTERNAL_DEP=${TOOL_FUNCTION_EXTERNAL_DEP}
-      
-      # Queue Configuration (optional)
-      - MODE=${MODE}
-      - WORKER_CONCURRENCY=${WORKER_CONCURRENCY}
-      - QUEUE_NAME=${QUEUE_NAME}
-      - REDIS_URL=${REDIS_URL}
-      - REDIS_HOST=${REDIS_HOST}
-      - REDIS_PORT=${REDIS_PORT}
-      - REDIS_USERNAME=${REDIS_USERNAME}
-      - REDIS_PASSWORD=${REDIS_PASSWORD}
-      
-      # Proxy Configuration
-      - NUMBER_OF_PROXIES=${NUMBER_OF_PROXIES}
     ports:
       - "${PORT:-3000}:${PORT:-3000}"
     volumes:

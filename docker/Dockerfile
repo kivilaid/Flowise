@@ -69,6 +69,10 @@ RUN chmod +x ./packages/server/bin/run
 # Install production dependencies using pnpm
 RUN pnpm install --prod --frozen-lockfile
 
+# Create startup script
+RUN echo '#!/bin/sh\ncd /app/packages/server/bin && ./run start' > /app/start.sh && \
+    chmod +x /app/start.sh
+
 WORKDIR /app
 
 # Set default environment variables
@@ -83,5 +87,5 @@ ENV EXECUTION_PATH=/app/packages/server/dist
 # Expose port
 EXPOSE 3000
 
-# Start the server
-ENTRYPOINT ["node", "packages/server/dist/index.js"]
+# Start the server using the correct command
+ENTRYPOINT ["/app/start.sh"]
