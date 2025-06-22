@@ -62,12 +62,14 @@ COPY --from=builder /app/packages/api-documentation/dist ./packages/api-document
 
 # Copy scripts and configurations
 COPY --from=builder /app/packages/server/bin ./packages/server/bin
+COPY --from=builder /app/packages/server/marketplaces ./packages/server/marketplaces
+COPY --from=builder /app/packages/server/oauth2.html ./packages/server/oauth2.html
 
 # Set permissions for the run script
 RUN chmod +x ./packages/server/bin/run
 
 # Install production dependencies using pnpm
-RUN pnpm install --prod --frozen-lockfile
+RUN pnpm install --frozen-lockfile
 
 WORKDIR /app/packages/server
 
